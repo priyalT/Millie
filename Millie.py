@@ -150,7 +150,7 @@ while True:
 
     screen.blit(millie_surf, (250, 150))
 
-    if food_active:  # Draw food if active
+    if food_active:
         screen.blit(food, (food_x_pos, food_y_pos))
 
     pygame.display.update()

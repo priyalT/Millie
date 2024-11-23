@@ -5,33 +5,49 @@ def player_animation():
     global millie_surf, millie_index, is_animating, is_sleeping, sleep_start_time, is_eating, eat_start_time, food_active
     current_time = pygame.time.get_ticks()
 
-    # Handling the animation state
     if is_animating:
         if current_time - animation_start_time < 5000:
             millie_index += 0.1
             if millie_index >= len(millie_pet):
                 millie_index = 0
             millie_surf = millie_pet[int(millie_index)]
+            
+            if not pet_music.get_num_channels():
+                bg_music.stop()
+                pet_music.play()
         else:
             is_animating = False
             millie_surf = millie_stand
+            
+            
+            pet_music.stop()
+            bg_music.play(-1)
 
     elif is_sleeping:
         if current_time - sleep_start_time < 5000:
             frame_index = (current_time // 500) % len(millie_sleep)
             millie_surf = millie_sleep[int(frame_index)]
+
+            if not snore_music.get_num_channels():
+                snore_music.play()
         else:
             is_sleeping = False
             millie_surf = millie_stand
+            snore_music.stop()
 
     elif is_eating:
-        if current_time - eat_start_time < 4000:  # Eating animation duration (2 seconds)
+        if current_time - eat_start_time < 4000: 
             frame_index = int((current_time - eat_start_time) / 500) % len(millie_eat_list)
             millie_surf = millie_eat_list[frame_index]
+            
+            if not chew_music.get_num_channels():  
+                chew_music.play()
         else:
-            is_eating = False  # Stop eating animation
-            food_active = False  # Make food disappear
+            is_eating = False  
+            food_active = False 
             millie_surf = millie_stand
+
+            chew_music.stop()
 
 pygame.init()
 screen = pygame.display.set_mode((700, 400))
@@ -78,7 +94,7 @@ millie_eat_list = [millie_eat, millie_eat_1, millie_eat_2, millie_eat_3]
 
 food = pygame.image.load('graphics/Mil/food.png').convert_alpha()
 food = pygame.transform.scale(food, (100, 100))
-food_x_pos, food_y_pos = 200,200  # Food is placed at the top-left corner
+food_x_pos, food_y_pos = 200,200  
 
 millie_index = 0
 millie_surf = millie_stand
@@ -87,12 +103,15 @@ is_animating = False
 animation_start_time = 0
 is_sleeping = False
 sleep_start_time = 0
-food_active = False  # Is the food visible and moving?
-is_eating = False  # Is Millie eating?
+food_active = False  
+is_eating = False  
 eat_start_time = 0
-bg_music = pygame.mixer.Sound('audio/strawberry-cake-bg.mp3')
-bg_music.play(loops= -1)
 
+bg_music = pygame.mixer.Sound('audio/strawberry-cake-bg.mp3')
+bg_music.play(loops=-1)
+pet_music = pygame.mixer.Sound('audio/pet.mp3')
+chew_music = pygame.mixer.Sound('audio/chewing.mp3')
+snore_music = pygame.mixer.Sound('audio/snore.mp3')
 
 while True:
     for event in pygame.event.get():
@@ -107,13 +126,12 @@ while True:
             if event.key == pygame.K_SPACE and not is_sleeping:
                 is_sleeping = True
                 sleep_start_time = pygame.time.get_ticks()
-            if event.key == pygame.K_c and not food_active:  # Spawn food when the key is pressed
+            if event.key == pygame.K_c and not food_active:  
                 food_active = True
 
-
     if food_active and not is_eating:
-            is_eating = True
-            eat_start_time = pygame.time.get_ticks()
+        is_eating = True
+        eat_start_time = pygame.time.get_ticks()
 
     player_animation()
 
